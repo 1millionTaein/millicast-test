@@ -1,22 +1,14 @@
-import React, { Component } from "react";
+import React, { useEffect, useRef } from "react";
 import { subscribeCall } from "../helper/LiveApi";
 
 let url;
 let jwt;
 let iceServers;
-let stream;
-const accountId = "CEANfN";
 
-export default class Subscribe extends Component {
-  constructor(props) {
-    super(props);
-    this.videoRef = React.createRef();
-  }
-  componentDidMount() {
-    this.init();
-  }
+const Subscribe = () => {
+  const videoRef = useRef();
 
-  connect = async () => {
+  const connect = async () => {
     const config = {
       iceServers: iceServers,
       rtcpMuxPolicy: "require",
@@ -25,28 +17,29 @@ export default class Subscribe extends Component {
 
     // RTC객체 생성 및 스트림 생성
     const pc = new RTCPeerConnection(config);
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
-    });
 
     pc.ontrack = function (event) {
-      let vidWin = this.videoRef.current;
+      //Play it
+      const vidWin = videoRef?.current;
       if (vidWin) {
-        vidWin.srcObject = event.stream[0];
-        vidWin.controls = true;
+        vidWin.srcObject = event.streams[0];
+        vidWin.controls = false;
       }
     };
-
-    // 피어커넥션 등록
-    stream.getTracks().forEach((track) => {
-      console.log("track: ", track);
-      pc.addTrack(track, stream);
-    });
-
     const ws = new WebSocket(`${url}?token=${jwt}`);
-    console.log(ws);
     ws.onopen = async function () {
+      if (pc.addTransceiver) {
+        const stream = new MediaStream();
+        pc.addTransceiver("audio", {
+          direction: "recvonly",
+          streams: [stream],
+        });
+        pc.addTransceiver("video", {
+          direction: "recvonly",
+          streams: [stream],
+        });
+      }
+
       const desc = await pc.createOffer({
         offerToReceiveAudio: true,
         offerToReceiveVideo: true,
@@ -55,15 +48,14 @@ export default class Subscribe extends Component {
       pc.setLocalDescription(desc).then(() => {
         console.log("setLocalDescription Success!");
         let data = {
-          name: "krmxvbmm",
+          streamId: "CEANfN/krmxvbmm",
           sdp: desc.sdp,
-          codec: "h264",
         };
 
         let payload = {
           type: "cmd",
-          transId: Math.random() * 10000,
-          name: "publish",
+          transId: 0,
+          name: "view",
           data,
         };
 
@@ -71,44 +63,43 @@ export default class Subscribe extends Component {
       });
     };
     ws.addEventListener("message", (event) => {
-      console.log("ws::message", event);
-
       let msg = JSON.parse(event.data);
+      console.log(msg);
       switch (msg.type) {
+        //Handle counter response coming from the Media Server.
         case "response":
           let data = msg.data;
           let answer = new RTCSessionDescription({
             type: "answer",
             sdp: data.sdp + "a=x-google-flag:conference\r\n",
           });
-          pc.setRemoteDescription(answer)
-            .then(() => {
-              console.log("setRemoteDescription Success! ");
-              console.log("YOU ARE BROADCASTING!");
-            })
-            .catch((e) => {
-              console.log("setRemoteDescription failed: ", e);
-            });
+          pc.setRemoteDescription(answer);
           break;
+        default:
+          return;
       }
     });
   };
 
-  init = async () => {
+  const init = async () => {
     const { data } = await subscribeCall();
     console.log(data);
     const { jwt: responseJwt, urls } = data.data;
 
     jwt = responseJwt;
     url = urls?.[0];
-    this.connect();
+    await connect();
   };
 
-  render() {
-    return (
-      <div>
-        <video ref={this.videoRef} />
-      </div>
-    );
-  }
-}
+  useEffect(() => {
+    init();
+  }, []);
+
+  return (
+    <div>
+      <video ref={videoRef} autoPlay />
+    </div>
+  );
+};
+
+export default Subscribe;

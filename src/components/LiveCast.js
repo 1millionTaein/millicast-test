@@ -1,22 +1,17 @@
-import React, { Component } from "react";
+import React, { useEffect, useRef } from "react";
+import styled from "styled-components";
 import { publishCall } from "../helper/LiveApi";
 
 let url;
 let jwt;
 let iceServers;
 
-export default class LiveCast extends Component {
-  constructor(props) {
-    super(props);
-    this.videoRef = React.createRef();
-  }
-  componentDidMount() {
-    this.init();
-  }
+const LiveCast = () => {
+  const videoRef = useRef();
 
-  connect = async () => {
+  const connect = async () => {
     const config = {
-      iceServers: iceServers,
+      // iceServers: iceServers,
       rtcpMuxPolicy: "require",
       bundlePolicy: "max-bundle",
     };
@@ -27,16 +22,19 @@ export default class LiveCast extends Component {
       video: true,
       audio: true,
     });
+    videoRef.current.srcObject = stream;
+
     console.log(stream);
 
     // 피어커넥션 등록
     stream.getTracks().forEach((track) => {
       console.log("track: ", track);
+      // if (track.kind === "audio") {
       pc.addTrack(track, stream);
+      // }
     });
 
-    this.videoRef.current.srcObject = stream;
-    console.log(this.videoRef.current.srcObject);
+    console.log(videoRef.current.srcObject);
 
     const ws = new WebSocket(`${url}?token=${jwt}`);
     console.log(ws);
@@ -64,19 +62,22 @@ export default class LiveCast extends Component {
         ws.send(JSON.stringify(payload));
       });
     };
-    ws.addEventListener("message", (event) => {
-      console.log("ws::message", event);
 
-      let msg = JSON.parse(event.data);
+    ws.addEventListener("message", (evt) => {
+      console.log("ws::message", evt);
+      let msg = JSON.parse(evt.data);
       switch (msg.type) {
+        //Handle counter response coming from the Media Server.
         case "response":
+          console.log(msg);
+
           let data = msg.data;
           let answer = new RTCSessionDescription({
             type: "answer",
             sdp: data.sdp + "a=x-google-flag:conference\r\n",
           });
           pc.setRemoteDescription(answer)
-            .then(() => {
+            .then((d) => {
               console.log("setRemoteDescription Success! ");
               console.log("YOU ARE BROADCASTING!");
             })
@@ -88,20 +89,34 @@ export default class LiveCast extends Component {
     });
   };
 
-  init = async () => {
+  const init = async () => {
     const { data } = await publishCall();
     const { jwt: responseJwt, urls } = data.data;
 
     jwt = responseJwt;
     url = urls?.[0];
-    await this.connect();
+    await connect();
   };
 
-  render() {
-    return (
-      <div>
-        <video ref={this.videoRef} />
-      </div>
-    );
-  }
-}
+  useEffect(() => {
+    init();
+  }, []);
+
+  return (
+    <PlayerContainer>
+      <Player ref={videoRef} autoPlay />
+    </PlayerContainer>
+  );
+};
+
+export default LiveCast;
+
+const PlayerContainer = styled.div`
+  width: 100%;
+  height: 600px;
+`;
+
+const Player = styled.video`
+  width: 600px;
+  height: 400px;
+`;
