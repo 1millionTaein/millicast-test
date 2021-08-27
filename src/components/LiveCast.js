@@ -1,10 +1,13 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { publishCall } from "../helper/LiveApi";
+import { startUserCount } from "./UserCount";
 
 let url;
 let jwt;
 let iceServers;
+const streamName = "krmxvbmm";
+const accountId = "CEANfN";
 
 const LiveCast = () => {
   const videoRef = useRef();
@@ -87,6 +90,8 @@ const LiveCast = () => {
           break;
       }
     });
+    const countEle = document.querySelector(".count");
+    startUserCount(accountId, streamName, countEle);
   };
 
   const init = async () => {
@@ -104,7 +109,8 @@ const LiveCast = () => {
 
   return (
     <PlayerContainer>
-      <Player ref={videoRef} autoPlay />
+      <Player ref={videoRef} autoPlay muted />
+      <div className="count"></div>
     </PlayerContainer>
   );
 };

@@ -20,6 +20,7 @@ const Subscribe = () => {
 
     pc.ontrack = function (event) {
       //Play it
+      console.log(event);
       const vidWin = videoRef?.current;
       if (vidWin) {
         vidWin.srcObject = event.streams[0];
@@ -44,6 +45,7 @@ const Subscribe = () => {
         offerToReceiveAudio: true,
         offerToReceiveVideo: true,
       });
+
       console.log("createOffer Success!");
       pc.setLocalDescription(desc).then(() => {
         console.log("setLocalDescription Success!");
