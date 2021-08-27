@@ -109,7 +109,7 @@ const LiveCast = () => {
 
   return (
     <PlayerContainer>
-      <Player ref={videoRef} autoPlay muted />
+      <Player ref={videoRef} autoPlay />
       <div className="count"></div>
     </PlayerContainer>
   );

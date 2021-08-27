@@ -6,8 +6,6 @@ let jwt;
 let iceServers;
 
 const Subscribe = () => {
-  const videoRef = useRef();
-
   const connect = async () => {
     const config = {
       iceServers: iceServers,
@@ -20,11 +18,20 @@ const Subscribe = () => {
 
     pc.ontrack = function (event) {
       //Play it
-      console.log(event);
-      const vidWin = videoRef?.current;
-      if (vidWin) {
-        vidWin.srcObject = event.streams[0];
-        vidWin.controls = false;
+      console.log("온트랙", event);
+      if (event.track.kind === "video") {
+        const subscribe = document.querySelector(".subscribe");
+        const video = document.createElement("video");
+        const mediaStream = event.streams[0];
+        if ("srcObject" in video) {
+          video.srcObject = mediaStream;
+        } else {
+          // Avoid using this in new browsers, as it is going away.
+          video.src = URL.createObjectURL(mediaStream);
+        }
+        video.controls = true;
+        video.autoplay = true;
+        subscribe.appendChild(video);
       }
     };
     const ws = new WebSocket(`${url}?token=${jwt}`);
@@ -97,11 +104,7 @@ const Subscribe = () => {
     init();
   }, []);
 
-  return (
-    <div>
-      <video ref={videoRef} autoPlay />
-    </div>
-  );
+  return <div className="subscribe"></div>;
 };
 
 export default Subscribe;
