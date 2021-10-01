@@ -1,3 +1,5 @@
+import { streamName } from "../helper/LiveApi";
+
 // User Count data
 const userCountURL = "wss://streamevents.millicast.com/ws";
 const recordSeparator = "\x1E";
@@ -8,8 +10,6 @@ let ws_cnt; //User count websocket
 let preFix = "viewing: ";
 let viewCount = preFix + "00";
 let view; //optional DOM element to display count.
-
-const streamName = "krmxvbmm";
 const accountId = "CEANfN";
 
 // User Count

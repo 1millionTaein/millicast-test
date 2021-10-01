@@ -2,8 +2,9 @@ import "./App.css";
 import { Switch, BrowserRouter, Route } from "react-router-dom";
 import LiveCast from "./components/LiveCast";
 import Subscribe from "./components/Subscribe";
-import Main from "./components/Main";
 import Header from "./components/Header";
+// import Fire from "./components/Fire";
+import Main from "./components/Main";
 
 function App() {
   return (

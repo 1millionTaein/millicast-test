@@ -1,6 +1,6 @@
 import { auth, base } from "./ApiHelper";
 
-const streamName = "krmxvbmm";
+export const streamName = "ku6o96yu";
 const accountId = "CEANfN";
 
 export function publishCall() {

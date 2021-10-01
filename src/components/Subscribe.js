@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import { subscribeCall } from "../helper/LiveApi";
 
 let url;
@@ -36,17 +36,17 @@ const Subscribe = () => {
     };
     const ws = new WebSocket(`${url}?token=${jwt}`);
     ws.onopen = async function () {
-      if (pc.addTransceiver) {
-        const stream = new MediaStream();
-        pc.addTransceiver("audio", {
-          direction: "recvonly",
-          streams: [stream],
-        });
-        pc.addTransceiver("video", {
-          direction: "recvonly",
-          streams: [stream],
-        });
-      }
+      // if (pc.addTransceiver) {
+      //   const stream = new MediaStream();
+      //   pc.addTransceiver("audio", {
+      //     direction: "recvonly",
+      //     streams: [stream],
+      //   });
+      //   pc.addTransceiver("video", {
+      //     direction: "recvonly",
+      //     streams: [stream],
+      //   });
+      // }
 
       const desc = await pc.createOffer({
         offerToReceiveAudio: true,
@@ -67,7 +67,6 @@ const Subscribe = () => {
           name: "view",
           data,
         };
-
         ws.send(JSON.stringify(payload));
       });
     };

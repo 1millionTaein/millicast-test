@@ -1,7 +1,6 @@
-import React from "react";
-
+import React, { useEffect, useState } from "react";
 function Main() {
-  return <div>Millicast Test용 메인페이지입니다.</div>;
+  return <button>버튼</button>;
 }
 
 export default Main;

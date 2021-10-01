@@ -1,14 +1,26 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom";
+import "./index.css";
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
+import firebase from "firebase";
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker
+    .register("../firebase-messaging-sw.js")
+    .then(function (registration) {
+      firebase.messaging().useServiceWorker(registration);
+    })
+    .catch(function (err) {
+      console.log("Service worker registration failed, error:", err);
+    });
+}
 
 ReactDOM.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,
-  document.getElementById('root')
+  document.getElementById("root")
 );
 
 // If you want to start measuring performance in your app, pass a function

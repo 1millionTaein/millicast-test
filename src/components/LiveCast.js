@@ -1,12 +1,26 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
-import { publishCall } from "../helper/LiveApi";
+import { publishCall, streamName } from "../helper/LiveApi";
 import { startUserCount } from "./UserCount";
 
 let url;
 let jwt;
-let iceServers;
-const streamName = "krmxvbmm";
+let iceServers = [
+  { urls: ["stun:tk-turn2.xirsys.com"] },
+  {
+    username:
+      "9q5mE7MfPmIPCZJ2BhMrmI9HrmZkFB9mBfZuKzj6z3nfMLEu0YySXf27IDjXDtHzAAAAAGD1NFMxbWlsbGlvbg==",
+    credential: "4c94fb70-e869-11eb-ae82-0242ac140004",
+    urls: [
+      "turn:tk-turn2.xirsys.com:80?transport=udp",
+      "turn:tk-turn2.xirsys.com:3478?transport=udp",
+      "turn:tk-turn2.xirsys.com:80?transport=tcp",
+      "turn:tk-turn2.xirsys.com:3478?transport=tcp",
+      "turns:tk-turn2.xirsys.com:443?transport=tcp",
+      "turns:tk-turn2.xirsys.com:5349?transport=tcp",
+    ],
+  },
+];
 const accountId = "CEANfN";
 
 const LiveCast = () => {
@@ -14,7 +28,7 @@ const LiveCast = () => {
 
   const connect = async () => {
     const config = {
-      // iceServers: iceServers,
+      iceServers: iceServers,
       rtcpMuxPolicy: "require",
       bundlePolicy: "max-bundle",
     };
@@ -32,9 +46,7 @@ const LiveCast = () => {
     // 피어커넥션 등록
     stream.getTracks().forEach((track) => {
       console.log("track: ", track);
-      // if (track.kind === "audio") {
       pc.addTrack(track, stream);
-      // }
     });
 
     console.log(videoRef.current.srcObject);
@@ -50,7 +62,7 @@ const LiveCast = () => {
       pc.setLocalDescription(desc).then(() => {
         console.log("setLocalDescription Success!");
         let data = {
-          name: "krmxvbmm",
+          name: streamName,
           sdp: desc.sdp,
           codec: "h264",
         };
@@ -109,6 +121,7 @@ const LiveCast = () => {
 
   return (
     <PlayerContainer>
+      <span>{streamName}</span>
       <Player ref={videoRef} autoPlay />
       <div className="count"></div>
     </PlayerContainer>

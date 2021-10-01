@@ -1,8 +1,10 @@
 import axios from "axios";
 
 const MILLICAST_API = "https://director.millicast.com/api";
+// const TOKEN =
+//   "fb287fe7ccd14cc439eecf9d5aa7d6c4d71b79aeb3d8354d66c92caeaae9744e";
 const TOKEN =
-  "fb287fe7ccd14cc439eecf9d5aa7d6c4d71b79aeb3d8354d66c92caeaae9744e";
+  "9a50a482ba1d738a620dcdc089c0a18a1dfa605fdedd8daa41e06199c5a53a85";
 
 function create(url, options) {
   const instance = axios.create(Object.assign({ baseURL: url }, options));
