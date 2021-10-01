@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { subscribeCall } from "../helper/LiveApi";
+import { streamName, subscribeCall } from "../helper/LiveApi";
 
 let url;
 let jwt;
@@ -57,7 +57,7 @@ const Subscribe = () => {
       pc.setLocalDescription(desc).then(() => {
         console.log("setLocalDescription Success!");
         let data = {
-          streamId: "CEANfN/krmxvbmm",
+          streamId: `CEANfN/${streamName}`,
           sdp: desc.sdp,
         };
 
